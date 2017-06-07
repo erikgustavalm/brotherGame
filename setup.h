@@ -7,6 +7,7 @@
 // Define a macro for screen size, both width and height
 #define SCREEN_SIZE 640
 
+#define FPS 60
 
 // Gamestate is to be used as identifier for which mode the game will be in
 // and what to do thereafter
@@ -19,6 +20,7 @@ SDL_Renderer* gameRender;
 
 // gameWindow is simply the instance of a window, only used in init and exit
 SDL_Window* gameWindow;
+
 
 
 // First function to be called and only initalize everything else
@@ -38,3 +40,9 @@ extern void eventCheck();
 
 // The rendering of object to the screen
 extern void drawScreen();
+
+
+// Load image --IS TO BE MOVED--
+
+SDL_Texture* testImage;
+extern SDL_Texture* loadTexture(char* filepath);

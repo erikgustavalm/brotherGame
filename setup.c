@@ -34,6 +34,14 @@ void initSetup()
 
       // Gamestate will be set to menu in the begining
       gamestate = MENU;
+
+      //LOADING OF TEST TEXTURE
+      testImage = loadTexture("DATA/test.png");
+      if (testImage == NULL) {
+	printf("Image not created %s\n", SDL_GetError() );
+      }
+      
+      
       gameloop();
 
     }
@@ -46,12 +54,17 @@ void initSetup()
 // Gamelooptroop rockers
 void gameloop()
 {
+  int countedFrames = 0;
   // while gamestate is anything but QUIT the loop will be running with eventchecking, logical operations and rendering
   while (gamestate != QUIT) {
+    if (countedFrames + FPS < SDL_GetTicks()) {
+    
+      updateLogic();
+      eventCheck();
+      drawScreen();
 
-    updateLogic();
-    eventCheck();
-    drawScreen();
+      countedFrames = SDL_GetTicks();
+    }
     
   }
 }
@@ -103,7 +116,7 @@ void drawScreen()
 
   // draw menuspecific items if gamestate is MENU
   if (gamestate == MENU) {
-    
+    SDL_RenderCopy(gameRender, testImage, NULL, NULL);
   }
   
   // draw gameplay
@@ -118,13 +131,36 @@ void drawScreen()
 // Quitting function that cleans up and destroys pointers
 void quit()
 {
-  SDL_DestroyWindow(gameWindow);
-  gameWindow = NULL;
-  
+
+  SDL_DestroyTexture(testImage);
+  testImage = NULL;
+
   SDL_DestroyRenderer(gameRender);
   gameRender = NULL;
+
+  SDL_DestroyWindow(gameWindow);
+  gameWindow = NULL;
   
   SDL_Quit();
   
   printf("game executed fine\n");
+}
+
+SDL_Texture* loadTexture(char* filepath)
+{
+  SDL_Texture* newText = NULL;
+
+  SDL_Surface* loadSurf = IMG_Load(filepath);
+
+  newText = SDL_CreateTextureFromSurface(gameRender, loadSurf);
+  
+  if (newText == NULL) {
+    printf("Unable to load text: %s\n", SDL_GetError());
+  }else {
+    printf("texture loaded: %s\n", filepath);
+  }
+  
+  SDL_FreeSurface(loadSurf);
+
+  return newText;
 }
