@@ -1,0 +1,8 @@
+#ifndef _OBJECT_H_
+#define _OBJECT_H_
+
+#include "setup.h"
+
+extern SDL_Texture* loadTexture(char* filepath);
+
+#endif

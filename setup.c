@@ -36,7 +36,7 @@ void initSetup()
       gamestate = MENU;
 
       //LOADING OF TEST TEXTURE
-      testImage = loadTexture("DATA/test.png");
+      testImage = loadTexture("DATA/test.png", gameRender);
       if (testImage == NULL) {
 	printf("Image not created %s\n", SDL_GetError() );
       }
@@ -146,21 +146,4 @@ void quit()
   printf("game executed fine\n");
 }
 
-SDL_Texture* loadTexture(char* filepath)
-{
-  SDL_Texture* newText = NULL;
 
-  SDL_Surface* loadSurf = IMG_Load(filepath);
-
-  newText = SDL_CreateTextureFromSurface(gameRender, loadSurf);
-  
-  if (newText == NULL) {
-    printf("Unable to load text: %s\n", SDL_GetError());
-  }else {
-    printf("texture loaded: %s\n", filepath);
-  }
-  
-  SDL_FreeSurface(loadSurf);
-
-  return newText;
-}

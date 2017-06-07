@@ -1,13 +1,20 @@
+#ifndef _SETUP_H_
+#define _SETUP_H_
+
+#include "objects.h"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 
-// Define a macro for screen size, both width and height
-#define SCREEN_SIZE 640
 
-#define FPS 60
+/*
+
+  STRUCT & ENUMS
+
+*/
 
 // Gamestate is to be used as identifier for which mode the game will be in
 // and what to do thereafter
@@ -21,6 +28,22 @@ SDL_Renderer* gameRender;
 // gameWindow is simply the instance of a window, only used in init and exit
 SDL_Window* gameWindow;
 
+/*
+
+  VARIABLES
+
+*/
+
+// Define a macro for screen size, both width and height
+#define SCREEN_SIZE 640
+#define FPS 60
+
+
+/*
+
+  FUNCTIONS
+
+*/
 
 
 // First function to be called and only initalize everything else
@@ -43,6 +66,6 @@ extern void drawScreen();
 
 
 // Load image --IS TO BE MOVED--
-
 SDL_Texture* testImage;
-extern SDL_Texture* loadTexture(char* filepath);
+
+#endif// _SETUP_H_
