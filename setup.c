@@ -1,0 +1,81 @@
+#include "setup.h"
+
+void initSetup()
+{
+  
+  printf("Initialize game\n");
+
+  SDL_Init(SDL_INIT_EVERYTHING);
+  
+  gameWindow = SDL_CreateWindow("HELLO WORLD", 0,0,300,300,SDL_WINDOW_SHOWN);
+
+  if (gameWindow == NULL) {
+
+    printf("gameWindow couldn't be created\n");
+
+  }else {
+ 
+    gameRender = SDL_CreateRenderer(gameWindow,
+				    -1,
+				    SDL_RENDERER_ACCELERATED);
+    if (gameRender == NULL) {
+
+      printf("gameRender couldn't be created\n");
+
+    }else {
+
+      SDL_SetRenderDrawColor(gameRender, 255,255,255,255);
+      
+      running = 1;
+      gameloop();
+
+    }
+  }
+  quit();
+}
+
+void gameloop()
+{
+  while (running){
+    eventCheck();
+    drawScreen();
+  }
+}
+
+void eventCheck()
+{
+  SDL_Event event;
+  while (SDL_PollEvent(&event)) {
+    switch (event.type) {
+    case SDL_KEYDOWN: 
+      switch (event.key.keysym.sym) {
+      case SDLK_ESCAPE: 
+	running = 0;
+	break;
+      
+      default:
+	break;
+      }
+      break;
+    
+    default:
+      break;
+    }
+  }
+}
+
+void drawScreen()
+{
+  SDL_RenderClear(gameRender);
+  
+  SDL_RenderPresent(gameRender);
+}
+void quit()
+{
+  SDL_DestroyWindow(gameWindow);
+  SDL_DestroyRenderer(gameRender);
+
+  SDL_Quit();
+  
+  printf("game executed fine\n");
+}
