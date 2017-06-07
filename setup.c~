@@ -7,9 +7,7 @@ void initSetup()
 
   SDL_Init(SDL_INIT_EVERYTHING);
   
-  gameWindow = SDL_CreateWindow("HELLO WORLD", SDL_WINDOWPOS_CENTERED,
-				SDL_WINDOWPOS_CENTERED,SCREEN_SIZE, SCREEN_SIZE,
-				SDL_WINDOW_SHOWN);
+  gameWindow = SDL_CreateWindow("HELLO WORLD", 0,0,300,300,SDL_WINDOW_SHOWN);
 
   if (gameWindow == NULL) {
 
@@ -28,7 +26,7 @@ void initSetup()
 
       SDL_SetRenderDrawColor(gameRender, 255,255,255,255);
       
-      gamestate = MENU;
+      running = 1;
       gameloop();
 
     }
@@ -38,7 +36,7 @@ void initSetup()
 
 void gameloop()
 {
-  while (gamestate == MENU){
+  while (running){
     eventCheck();
     drawScreen();
   }
@@ -49,23 +47,19 @@ void eventCheck()
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
-      case SDL_QUIT:
-	  gamestate = QUIT;
+    case SDL_KEYDOWN: 
+      switch (event.key.keysym.sym) {
+      case SDLK_ESCAPE: 
+	running = 0;
 	break;
-      case SDL_KEYDOWN: 
-	  switch (event.key.keysym.sym) {
-
-	     case SDLK_ESCAPE: 
-	       gamestate = QUIT;
-	     break;
       
-             default:
-	       break;
-          }
-        break;
-    
       default:
-        break;
+	break;
+      }
+      break;
+    
+    default:
+      break;
     }
   }
 }
@@ -74,7 +68,7 @@ void drawScreen()
 {
   SDL_RenderClear(gameRender);
   
-  SDL_RenderPresent(gameRender);
+  SDL_RenderPresent();
 }
 void quit()
 {
