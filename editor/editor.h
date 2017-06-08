@@ -10,12 +10,15 @@
 SDL_Renderer* gRender;
 SDL_Window* gWindow;
 
+SDL_Texture* staticSprite;
+
 extern void render();
 extern void update();
 extern void event();
 extern void mainloop();
+extern void loadLevelType(char* levelType);
 extern void loadLevelFile(char* levelFile);
-extern void startEditor(char* levelFile);
+extern void startEditor(char* levelFile, char* type);
 extern void initEditor();
 extern void quit();
 

@@ -76,14 +76,42 @@ void loadLevelFile(char* levelFile)
   
   fclose(f);
 }
-void startEditor(char* levelFile)
+
+void loadLevelType(char* levelType)
+{
+  char* ssFilepath;
+
+  if (strcmp(ssFilepath, "wood")) {
+    ssFilepath = "levels/wood.png";
+
+  }
+
+  printf("static spritesheet is loaded from: %s\n", ssFilepath);
+  
+  SDL_Surface* loadSurf = IMG_Load(ssFilepath);
+
+  if (loadSurf == NULL) {
+    printf("%s\n", SDL_GetError());
+  }
+  staticSprite = SDL_CreateTextureFromSurface(gRender, loadSurf);
+
+  SDL_FreeSurface(loadSurf);
+
+  if (staticSprite == NULL) {
+    printf("%s\n", SDL_GetError());
+  }
+}
+
+void startEditor(char* levelFile, char* type)
 {
   SDL_Init(SDL_INIT_EVERYTHING);
 
   loadLevelFile(levelFile);
   
   initEditor();
-
+  
+  loadLevelType(type);
+  
   mainloop();
 
   quit();
@@ -91,6 +119,8 @@ void startEditor(char* levelFile)
 
 void quit()
 {
+  SDL_DestroyTexture(staticSprite);
+  staticSprite = NULL;
   SDL_DestroyRenderer(gRender);
   gRender = NULL;
   SDL_DestroyWindow(gWindow);
