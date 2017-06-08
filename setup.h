@@ -20,6 +20,7 @@
 // Gamestate is to be used as identifier for which mode the game will be in
 // and what to do thereafter
 typedef enum{ MENU, QUIT, PLAY} gamestate_t;
+
 gamestate_t gamestate;
 
 // gameRender is the rendering structure/engine that will be used whenever
