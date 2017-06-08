@@ -59,9 +59,28 @@ void initEditor()
   }
 }
 
+void loadLevelFile(char* levelFile)
+{
+  char pre[50];
+  strcpy(pre, "levels/");
+  
+  strcat(pre, levelFile);
+  
+  FILE* f = fopen(pre, "a+");
+  if (f == NULL) {
+    printf("file not loaded: %s\n", pre);
+  }else {
+    printf("file loaded succesfully\n");
+    
+  }
+  
+  fclose(f);
+}
 void startEditor(char* levelFile)
 {
   SDL_Init(SDL_INIT_EVERYTHING);
+
+  loadLevelFile(levelFile);
   
   initEditor();
 

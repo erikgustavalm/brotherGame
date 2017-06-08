@@ -5,7 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 
 SDL_Renderer* gRender;
 SDL_Window* gWindow;
@@ -14,6 +14,7 @@ extern void render();
 extern void update();
 extern void event();
 extern void mainloop();
+extern void loadLevelFile(char* levelFile);
 extern void startEditor(char* levelFile);
 extern void initEditor();
 extern void quit();
