@@ -1,0 +1,9 @@
+#ifndef _EDITOR_H_
+#define _EDITOR_H_
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+
+
+
+#endif
