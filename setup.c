@@ -96,7 +96,13 @@ void eventCheck()
 	     case SDLK_ESCAPE: 
 	       gamestate = QUIT;
 	     break;
-      
+	     
+	     case SDLK_RETURN:
+	       if (gamestate == MENU) {
+		 gamestate = PLAY;
+	       }
+	       break;
+	       
              default:
 	       break;
           }
