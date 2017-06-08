@@ -93,10 +93,20 @@ void eventCheck()
 	  switch (event.key.keysym.sym) {
 	    
 	    // if the key = ESC, gamestate = QUIT 
-	     case SDLK_ESCAPE: 
-	       gamestate = QUIT;
+	     case SDLK_ESCAPE:
+	       if (gamestate == MENU) {
+		 gamestate = QUIT;
+	       }else {
+		 gamestate = MENU;
+	       }
 	     break;
-      
+	     
+	     case SDLK_RETURN:
+	       if (gamestate == MENU) {
+		 gamestate = PLAY;
+	       }
+	       break;
+	       
              default:
 	       break;
           }
