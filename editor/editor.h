@@ -11,6 +11,7 @@ SDL_Renderer* gRender;
 SDL_Window* gWindow;
 
 SDL_Texture* staticSprite;
+SDL_Rect staticSpriteRect;
 
 extern void render();
 extern void update();
@@ -23,4 +24,6 @@ extern void initEditor();
 extern void quit();
 
 int running;
+int showStatic;
+
 #endif

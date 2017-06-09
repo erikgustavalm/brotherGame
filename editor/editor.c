@@ -14,7 +14,13 @@ void event()
 	  case SDLK_ESCAPE:
 	    running = 0;
 	  break;
-
+	  case SDLK_s:
+	    if (showStatic == 1) {
+	      showStatic = 0;
+	    }else {
+	      showStatic = 1;
+	    }
+	  break;
 	  default:
 	  break;
 	}
@@ -33,6 +39,10 @@ void render()
 {
   SDL_RenderClear(gRender);
 
+  if (showStatic == 1) {
+    SDL_RenderCopy(gRender, staticSprite, NULL, &staticSpriteRect);
+  }
+  
   SDL_RenderPresent(gRender);
 }
 void mainloop()
@@ -61,6 +71,10 @@ void initEditor()
 
 void loadLevelFile(char* levelFile)
 {
+  if (strlen(levelFile) > 50) {
+    printf("Not a correct level\n");
+    exit(1);
+  }
   char pre[50];
   strcpy(pre, "levels/");
   
@@ -100,6 +114,12 @@ void loadLevelType(char* levelType)
   if (staticSprite == NULL) {
     printf("%s\n", SDL_GetError());
   }
+
+  staticSpriteRect.x = 0;
+  staticSpriteRect.y = 0;
+  staticSpriteRect.w = 64;
+  staticSpriteRect.h = 64;
+  
 }
 
 void startEditor(char* levelFile, char* type)
