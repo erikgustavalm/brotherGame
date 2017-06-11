@@ -17,7 +17,11 @@ struct Tile
 };
 
 struct Tile* tileArray;
+int tileArrayUsed;
 int tileArraySize;
+
+SDL_Rect activeDestRect;
+SDL_Rect activeCropRect;
 
 SDL_Renderer* gRender;
 SDL_Window* gWindow;
@@ -26,7 +30,7 @@ SDL_Texture* staticSprite;
 SDL_Rect staticSpriteRect;
 
 extern void createTile(struct Tile* new, int x, int y, int cx, int cy);
-
+extern void addTile(struct Tile new);
 extern void render();
 extern void update();
 extern void event();
@@ -36,8 +40,11 @@ extern void loadLevelFile(char* levelFile);
 extern void startEditor(char* levelFile, char* type);
 extern void initEditor();
 extern void quit();
+extern void setActiveRect(int x, int y);
 
 int running;
 int showStatic;
+int mouse_x;
+int mouse_y;
 
 #endif

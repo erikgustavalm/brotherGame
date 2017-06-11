@@ -24,17 +24,47 @@ void event()
 	  default:
 	  break;
 	}
-      break;
-	  
+    break;
+    
+    case SDL_MOUSEBUTTONDOWN:
+      if (showStatic) {
+	int diffx = mouse_x % 16;
+	int diffy = mouse_y % 16;
+	int newx = mouse_x - diffx;
+	int newy = mouse_y - diffy;
+	printf("closest pos is %d-%d\n", newx, newy);
+	setActiveRect(newx, newy);
+	showStatic = 0;
+      }else {
+	int diffx = mouse_x % 32;
+	int diffy = mouse_y % 32;
+	int newx = mouse_x - diffx;
+	int newy = mouse_y - diffy;
+	struct Tile new;
+	createTile(&new, newx, newy, activeCropRect.x, activeCropRect.y);
+	addTile(new);
+      }
+    break;
+    
     default:
     break;
     }
   }
 }
+
 void update()
 {
+  SDL_GetMouseState(&mouse_x, &mouse_y);
+  activeDestRect.x = mouse_x - (TILE_SIZE/2);
+  activeDestRect.y = mouse_y - (TILE_SIZE/2);
 
+  if (showStatic == 0) {
+    SDL_ShowCursor(SDL_DISABLE);
+  }else {
+    SDL_ShowCursor(SDL_ENABLE);
+  }
 }
+
 void render()
 {
   SDL_RenderClear(gRender);
@@ -45,19 +75,51 @@ void render()
   }
   if (showStatic == 1) {
     SDL_RenderCopy(gRender, staticSprite, NULL, &staticSpriteRect);
+  }else {
+    SDL_RenderCopy(gRender, staticSprite, &activeCropRect, &activeDestRect);
   }
   
   SDL_RenderPresent(gRender);
 }
+
 void mainloop()
 {
   SDL_SetRenderDrawColor(gRender, 255,255,255,255);
+
+  setActiveRect(0,0);
+  
   running = 1;
   while (running) {
     event();
     update();
     render();
   }
+}
+
+void addTile(struct Tile new)
+{
+  if (tileArraySize <= tileArrayUsed) {
+    tileArraySize *= 2;
+    tileArray = realloc(tileArray, sizeof(struct Tile) * tileArraySize);
+    if (tileArray == NULL) {
+      printf("mem allocation failed\n");
+    }
+    printf("tileArray expanded\n");
+  }
+  
+  tileArray[tileArrayUsed] = new;
+  tileArrayUsed++;
+}
+void setActiveRect(int x, int y)
+{
+  activeDestRect.w = TILE_SIZE;
+  activeDestRect.h = TILE_SIZE;
+
+  activeCropRect.x = x;
+  activeCropRect.y = y;
+  activeCropRect.w = 16;
+  activeCropRect.h = 16;
+  
 }
 
 void initEditor()
@@ -119,8 +181,8 @@ void loadLevelFile(char* levelFile)
     
     //rewind(f);
 
-    tileArraySize = linesInFile +1;
-    
+    tileArraySize = linesInFile * 2;
+    tileArrayUsed = 0;
     tileArray = NULL;
     tileArray = realloc(tileArray, sizeof(struct Tile) * tileArraySize);
     
@@ -130,7 +192,6 @@ void loadLevelFile(char* levelFile)
       printf("mem allocated\n");
     }
 
-    int index = 0;
     
     while (!feof(f)) {
       
@@ -142,14 +203,13 @@ void loadLevelFile(char* levelFile)
       if (fscanf(f, "%d %d %d %d\n", &crox, &croy, &srcx, &srcy)) {
 	struct Tile new;
 	createTile(&new, srcx, srcy, crox, croy);
-	tileArray[index] = new;
-	index++;
+        addTile(new);
       }else {
 	printf("not working\n");
       }
     }
   }
-  
+  printf("file opened and closed\n");
   fclose(f);
 }
 
@@ -213,5 +273,5 @@ void quit()
 
   SDL_Quit();
 
-  printf("byebye\n");
+  printf("editor exited...\n");
 }
