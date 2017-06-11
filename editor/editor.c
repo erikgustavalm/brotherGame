@@ -11,11 +11,12 @@ void event()
 	
       case SDL_KEYDOWN:
         switch(e.key.keysym.sym){
+
 	  case SDLK_ESCAPE:
 	    running = 0;
 	  break;
 
-	  case SDLK_s:
+	  case SDLK_SPACE:
 	    if (showStatic == 1) {
 	      showStatic = 0;
 	    }else {
@@ -28,9 +29,49 @@ void event()
 	    running = 0;
 	  break;
 
+ 	  case SDLK_w:
+	    camUp = 1;
+	  break;
+
+	  case SDLK_s:
+	    camDown = 1;
+	  break;
+
+	  case SDLK_a:
+	    camLeft = 1;
+	  break;
+
+	  case SDLK_d:
+	    camRight = 1;
+	  break;
+
 	  default:
 	  break;
 	}
+    break;
+
+    case SDL_KEYUP:
+      switch (e.key.keysym.sym) {
+
+	case SDLK_w:
+	  camUp = 0;
+	break;
+
+        case SDLK_s:
+          camDown = 0;
+	break;
+
+	case SDLK_a:
+	  camLeft = 0;
+	break;
+
+	case SDLK_d:
+	  camRight = 0;
+        break;
+
+	default:
+	break;
+      }
     break;
     
     case SDL_MOUSEBUTTONDOWN:
@@ -39,23 +80,34 @@ void event()
 	int diffy = mouse_y % 16;
 	int newx = mouse_x - diffx;
 	int newy = mouse_y - diffy;
-	printf("closest pos is %d-%d\n", newx, newy);
 	setActiveRect(newx, newy);
 	showStatic = 0;
-      }else {
+      } else {
 	int diffx = mouse_x % 32;
 	int diffy = mouse_y % 32;
 	int newx = mouse_x - diffx;
 	int newy = mouse_y - diffy;
-	struct Tile new;
-	createTile(&new, newx, newy, activeCropRect.x, activeCropRect.y);
-	addTile(new);
+	if (checkIfTaken(newx, newy)) {
+	  
+	} else {
+	  struct Tile new;
+	  createTile(&new, newx, newy, activeCropRect.x, activeCropRect.y);
+	  addTile(new);
+	}
       }
     break;
     
     default:
     break;
     }
+  }
+}
+
+void movement(int x, int y)
+{
+  for (int i = 0; i < tileArrayUsed; i++) {
+    tileArray[i].src.x += x;
+    tileArray[i].src.y += y;
   }
 }
 
@@ -69,6 +121,21 @@ void update()
     SDL_ShowCursor(SDL_DISABLE);
   }else {
     SDL_ShowCursor(SDL_ENABLE);
+  }
+
+  if (camLeft) {
+    movement(TILE_SIZE,0);
+    corr_x += TILE_SIZE;
+  }else if (camRight) {
+    movement(-TILE_SIZE,0);
+    corr_x -= TILE_SIZE;
+  }
+  if (camUp) {
+    movement(0,TILE_SIZE);
+    corr_y += TILE_SIZE;
+  }else if (camDown) {
+    movement(0,-TILE_SIZE);
+    corr_y -= TILE_SIZE;
   }
 }
 
@@ -94,28 +161,64 @@ void mainloop()
   SDL_SetRenderDrawColor(gRender, 255,255,255,255);
 
   setActiveRect(0,0);
+
+  corr_x = 0;
+  corr_y = 0;
+  
+  camLeft = 0;
+  camRight = 0;
+  camDown = 0;
+  camUp = 0;
+
+  int FPS = 0;
   
   running = 1;
   while (running) {
-    event();
-    update();
-    render();
+    if (FPS + 30 < SDL_GetTicks()) {
+      event();
+      update();
+      render();
+      
+      FPS = SDL_GetTicks();
+    }
   }
 }
 
-void addTile(struct Tile new)
+int checkIfTaken(int x, int y)
 {
-  if (tileArraySize <= tileArrayUsed) {
-    tileArraySize *= 2;
-    tileArray = realloc(tileArray, sizeof(struct Tile) * tileArraySize);
-    if (tileArray == NULL) {
-      printf("mem allocation failed\n");
-    }
-    printf("tileArray expanded\n");
-  }
+  int contractIndex = 0;
+  int occupied = 0;
   
-  tileArray[tileArrayUsed] = new;
-  tileArrayUsed++;
+  for (int i = 0; i < tileArrayUsed; i++) {
+    if (tileArray[i].src.x == x && tileArray[i].src.y == y) {
+      contractIndex = i;
+      occupied = 1;
+    }
+  }
+  if (occupied == 1) {
+    for (int i = contractIndex; i <= tileArrayUsed; i++) {
+      tileArray[i] = tileArray[i+1];
+    }
+    tileArrayUsed--;
+    return 1;
+  }
+  return 0;
+}
+
+void addTile(struct Tile new)
+{  
+    if (tileArraySize <= tileArrayUsed) {
+      tileArraySize *= 2;
+      tileArray = realloc(tileArray, sizeof(struct Tile) * tileArraySize);
+      if (tileArray == NULL) {
+	printf("mem allocation failed\n");
+      }
+      printf("tileArray expanded\n");
+    }
+  
+    tileArray[tileArrayUsed] = new;
+    tileArrayUsed++;
+  
 }
 void setActiveRect(int x, int y)
 {
@@ -225,8 +328,8 @@ void saveToFile()
   }
   for (int i = 0; i < tileArrayUsed; i++) {
     fprintf(fp,"%d %d %d %d\n",
-	  tileArray[i].src.x,
-	  tileArray[i].src.y,
+	  tileArray[i].src.x - corr_x,
+	  tileArray[i].src.y - corr_y,
 	  tileArray[i].crop.x,
 	  tileArray[i].crop.y);
   }

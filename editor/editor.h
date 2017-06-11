@@ -29,6 +29,7 @@ SDL_Window* gWindow;
 SDL_Texture* staticSprite;
 SDL_Rect staticSpriteRect;
 
+extern int checkIfTaken(int x, int y);
 extern void createTile(struct Tile* new, int x, int y, int cx, int cy);
 extern void addTile(struct Tile new);
 extern void render();
@@ -42,12 +43,20 @@ extern void initEditor();
 extern void quit();
 extern void setActiveRect(int x, int y);
 extern void saveToFile();
+extern void movement(int x, int y);
+
+int corr_x;
+int corr_y;
 
 int running;
 int showStatic;
 int mouse_x;
 int mouse_y;
 
+int camUp;
+int camDown;
+int camLeft;
+int camRight;
 
 char fpath[50];
 #endif
