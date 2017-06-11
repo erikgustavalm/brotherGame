@@ -41,10 +41,13 @@ extern void startEditor(char* levelFile, char* type);
 extern void initEditor();
 extern void quit();
 extern void setActiveRect(int x, int y);
+extern void saveToFile();
 
 int running;
 int showStatic;
 int mouse_x;
 int mouse_y;
 
+
+char fpath[50];
 #endif

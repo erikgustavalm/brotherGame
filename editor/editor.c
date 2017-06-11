@@ -14,6 +14,7 @@ void event()
 	  case SDLK_ESCAPE:
 	    running = 0;
 	  break;
+
 	  case SDLK_s:
 	    if (showStatic == 1) {
 	      showStatic = 0;
@@ -21,6 +22,12 @@ void event()
 	      showStatic = 1;
 	    }
 	  break;
+
+	  case SDLK_RETURN:
+	    saveToFile();
+	    running = 0;
+	  break;
+
 	  default:
 	  break;
 	}
@@ -119,7 +126,6 @@ void setActiveRect(int x, int y)
   activeCropRect.y = y;
   activeCropRect.w = 16;
   activeCropRect.h = 16;
-  
 }
 
 void initEditor()
@@ -157,29 +163,27 @@ void loadLevelFile(char* levelFile)
     printf("Not a correct level\n");
     exit(1);
   }
-  char pre[50];
-  strcpy(pre, "levels/");
+  strcpy(fpath, "levels/");
   
-  strcat(pre, levelFile);
+  strcat(fpath, levelFile);
   
-  FILE* f = fopen(pre, "a+");
+  FILE* f = fopen(fpath, "a+");
   if (f == NULL) {
-    printf("file not loaded: %s\n", pre);
+    printf("file not loaded: %s\n", fpath);
   }else {
     printf("file loaded succesfully\n");
 
-    int linesInFile = 2;
-
-    /*
+    int linesInFile = 0;
+    
     while (!feof(f)) {
       char s[30];
       if (fscanf(f, "%s\n", &s)) {
 	
       }
       linesInFile++;
-      }*/
+    }
     
-    //rewind(f);
+    rewind(f);
 
     tileArraySize = linesInFile * 2;
     tileArrayUsed = 0;
@@ -200,7 +204,7 @@ void loadLevelFile(char* levelFile)
       int crox;
       int croy;
       
-      if (fscanf(f, "%d %d %d %d\n", &crox, &croy, &srcx, &srcy)) {
+      if (fscanf(f, "%d %d %d %d\n", &srcx, &srcy, &crox, &croy)) {
 	struct Tile new;
 	createTile(&new, srcx, srcy, crox, croy);
         addTile(new);
@@ -213,6 +217,23 @@ void loadLevelFile(char* levelFile)
   fclose(f);
 }
 
+void saveToFile()
+{
+  FILE* fp = fopen(fpath, "w");
+  if (fp == NULL) {
+    printf("file for saving failed to open\n");
+  }
+  for (int i = 0; i < tileArrayUsed; i++) {
+    fprintf(fp,"%d %d %d %d\n",
+	  tileArray[i].src.x,
+	  tileArray[i].src.y,
+	  tileArray[i].crop.x,
+	  tileArray[i].crop.y);
+  }
+  
+  fclose(fp);
+  printf("saved to file\n");
+}
 void loadLevelType(char* levelType)
 {
   char* ssFilepath;
