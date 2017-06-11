@@ -39,6 +39,10 @@ void render()
 {
   SDL_RenderClear(gRender);
 
+
+  for (int i = 0; i < tileArraySize; i++) {
+    SDL_RenderCopy(gRender, staticSprite, &tileArray[i].crop, &tileArray[i].src);
+  }
   if (showStatic == 1) {
     SDL_RenderCopy(gRender, staticSprite, NULL, &staticSpriteRect);
   }
@@ -47,6 +51,7 @@ void render()
 }
 void mainloop()
 {
+  SDL_SetRenderDrawColor(gRender, 255,255,255,255);
   running = 1;
   while (running) {
     event();
@@ -65,8 +70,23 @@ void initEditor()
     printf("gWindow not created %s\n", SDL_GetError());
   } else {
     gRender = SDL_CreateRenderer(gWindow,-1, SDL_RENDERER_ACCELERATED);
-    
+    if (gRender == NULL) {
+      printf("couldn't create render: %s\n", SDL_GetError());
+    }else {
+    }
   }
+}
+
+void createTile(struct Tile* new, int x, int y, int cx, int cy){
+  new->src.x = x;
+  new->src.y = y;
+  new->src.w = TILE_SIZE;
+  new->src.h = TILE_SIZE;
+
+  new->crop.x = cx;
+  new->crop.y = cy;
+  new->crop.w = TILE_CROP_SIZE;
+  new->crop.h = TILE_CROP_SIZE;
 }
 
 void loadLevelFile(char* levelFile)
@@ -85,7 +105,49 @@ void loadLevelFile(char* levelFile)
     printf("file not loaded: %s\n", pre);
   }else {
     printf("file loaded succesfully\n");
+
+    int linesInFile = 2;
+
+    /*
+    while (!feof(f)) {
+      char s[30];
+      if (fscanf(f, "%s\n", &s)) {
+	
+      }
+      linesInFile++;
+      }*/
     
+    //rewind(f);
+
+    tileArraySize = linesInFile +1;
+    
+    tileArray = NULL;
+    tileArray = realloc(tileArray, sizeof(struct Tile) * tileArraySize);
+    
+    if (tileArray == NULL) {
+      printf("mem not allocated\n");
+    }else {
+      printf("mem allocated\n");
+    }
+
+    int index = 0;
+    
+    while (!feof(f)) {
+      
+      int srcx;
+      int srcy;
+      int crox;
+      int croy;
+      
+      if (fscanf(f, "%d %d %d %d\n", &crox, &croy, &srcx, &srcy)) {
+	struct Tile new;
+	createTile(&new, srcx, srcy, crox, croy);
+	tileArray[index] = new;
+	index++;
+      }else {
+	printf("not working\n");
+      }
+    }
   }
   
   fclose(f);
@@ -139,6 +201,9 @@ void startEditor(char* levelFile, char* type)
 
 void quit()
 {
+  free(tileArray);
+  tileArray = NULL;
+  
   SDL_DestroyTexture(staticSprite);
   staticSprite = NULL;
   SDL_DestroyRenderer(gRender);
