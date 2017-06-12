@@ -236,7 +236,7 @@ void initEditor()
   gWindow = SDL_CreateWindow("EDITOR",
 			     SDL_WINDOWPOS_CENTERED,
 			     SDL_WINDOWPOS_CENTERED,
-			     420,420,SDL_WINDOW_SHOWN);
+			     420,420,SDL_WINDOW_FULLSCREEN | SDL_WINDOW_SHOWN);
   if (gWindow == NULL) {
     printf("gWindow not created %s\n", SDL_GetError());
   } else {
