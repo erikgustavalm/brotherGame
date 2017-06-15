@@ -370,12 +370,11 @@ void saveToFile()
 }
 void loadLevelType(char* levelType)
 {
-  char* ssFilepath;
+  char ssFilepath[40];
 
-  if (strcmp(ssFilepath, "wood")) {
-    ssFilepath = "levels/wood.png";
-
-  }
+  strcpy(ssFilepath, "levels/");
+  strcat(ssFilepath, levelType);
+  strcat(ssFilepath, ".png");
 
   printf("static spritesheet is loaded from: %s\n", ssFilepath);
   
