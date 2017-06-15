@@ -14,6 +14,7 @@ struct Tile
 {
   SDL_Rect src;
   SDL_Rect crop;
+  int isSolid;
 };
 
 struct Tile* tileArray;
@@ -29,8 +30,11 @@ SDL_Window* gWindow;
 SDL_Texture* staticSprite;
 SDL_Rect staticSpriteRect;
 
+SDL_Texture* editorSprite;
+SDL_Rect solidEditorRect;
+
 extern int checkIfTaken(int x, int y);
-extern void createTile(struct Tile* new, int x, int y, int cx, int cy);
+extern void createTile(struct Tile* new, int x, int y, int cx, int cy, int solid);
 extern void addTile(struct Tile new);
 extern void render();
 extern void update();
@@ -50,6 +54,8 @@ int corr_y;
 
 int running;
 int showStatic;
+int makeSolid;
+
 int mouse_x;
 int mouse_y;
 

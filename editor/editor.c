@@ -24,6 +24,14 @@ void event()
 	    }
 	  break;
 
+	  case SDLK_b:
+	    if (makeSolid) {
+	      makeSolid = 0;
+	    } else {
+	      makeSolid = 1;
+	    }
+	  break;
+	  
 	  case SDLK_RETURN:
 	    saveToFile();
 	    running = 0;
@@ -45,6 +53,10 @@ void event()
 	    camRight = 1;
 	  break;
 
+	  case SDLK_e:
+            printf("x on first: %d\n", tileArray[0].src.x);
+	  break;
+	    
 	  default:
 	  break;
 	}
@@ -91,7 +103,13 @@ void event()
 	  
 	} else {
 	  struct Tile new;
-	  createTile(&new, newx, newy, activeCropRect.x, activeCropRect.y);
+
+	  if (makeSolid) {
+	    createTile(&new, newx, newy, activeCropRect.x, activeCropRect.y, 1);  
+	  }else {
+	    createTile(&new, newx, newy, activeCropRect.x, activeCropRect.y, 0);
+	  }
+	  
 	  addTile(new);
 	}
       }
@@ -146,11 +164,18 @@ void render()
 
   for (int i = 0; i < tileArraySize; i++) {
     SDL_RenderCopy(gRender, staticSprite, &tileArray[i].crop, &tileArray[i].src);
+    if (tileArray[i].isSolid == 1) {
+      SDL_RenderCopy(gRender, editorSprite, &solidEditorRect, &tileArray[i].src);
+    }
   }
+  
   if (showStatic == 1) {
     SDL_RenderCopy(gRender, staticSprite, NULL, &staticSpriteRect);
   }else {
     SDL_RenderCopy(gRender, staticSprite, &activeCropRect, &activeDestRect);
+    if (makeSolid ) {
+      SDL_RenderCopy(gRender, editorSprite, &solidEditorRect, &activeDestRect);
+    }
   }
   
   SDL_RenderPresent(gRender);
@@ -248,7 +273,7 @@ void initEditor()
   }
 }
 
-void createTile(struct Tile* new, int x, int y, int cx, int cy){
+void createTile(struct Tile* new, int x, int y, int cx, int cy, int solid){
   new->src.x = x;
   new->src.y = y;
   new->src.w = TILE_SIZE;
@@ -258,6 +283,8 @@ void createTile(struct Tile* new, int x, int y, int cx, int cy){
   new->crop.y = cy;
   new->crop.w = TILE_CROP_SIZE;
   new->crop.h = TILE_CROP_SIZE;
+
+  new->isSolid = solid;
 }
 
 void loadLevelFile(char* levelFile)
@@ -286,6 +313,8 @@ void loadLevelFile(char* levelFile)
       linesInFile++;
     }
     
+    printf("lines in empty file : %d\n", linesInFile);
+    
     rewind(f);
 
     tileArraySize = linesInFile * 2;
@@ -300,16 +329,17 @@ void loadLevelFile(char* levelFile)
     }
 
     
-    while (!feof(f)) {
+    while (!feof(f) && linesInFile > 1) {
       
       int srcx;
       int srcy;
       int crox;
       int croy;
+      int solid;
       
-      if (fscanf(f, "%d %d %d %d\n", &srcx, &srcy, &crox, &croy)) {
+      if (fscanf(f, "%d %d %d %d %d\n", &srcx, &srcy, &crox, &croy, &solid)) {
 	struct Tile new;
-	createTile(&new, srcx, srcy, crox, croy);
+	createTile(&new, srcx, srcy, crox, croy, solid);
         addTile(new);
       }else {
 	printf("not working\n");
@@ -327,11 +357,12 @@ void saveToFile()
     printf("file for saving failed to open\n");
   }
   for (int i = 0; i < tileArrayUsed; i++) {
-    fprintf(fp,"%d %d %d %d\n",
+    fprintf(fp,"%d %d %d %d %d\n",
 	  tileArray[i].src.x - corr_x,
 	  tileArray[i].src.y - corr_y,
 	  tileArray[i].crop.x,
-	  tileArray[i].crop.y);
+	  tileArray[i].crop.y,
+	  tileArray[i].isSolid);
   }
   
   fclose(fp);
@@ -361,10 +392,27 @@ void loadLevelType(char* levelType)
     printf("%s\n", SDL_GetError());
   }
 
+  SDL_Surface* loadSurf2 = IMG_Load("always.png");
+
+  if (loadSurf2 == NULL) {
+    printf("%s\n", SDL_GetError());
+  }
+  editorSprite = SDL_CreateTextureFromSurface(gRender, loadSurf2);
+
+  SDL_FreeSurface(loadSurf2);
+
+  if (editorSprite == NULL) {
+    printf("%s\n", SDL_GetError());
+  }
+
+  solidEditorRect.x = 0;
+  solidEditorRect.y = 0;
+  solidEditorRect.w = 16;
+  solidEditorRect.h = 16;
+  
   staticSpriteRect.x = 0;
   staticSpriteRect.y = 0;
-  staticSpriteRect.w = 64;
-  staticSpriteRect.h = 64;
+  SDL_QueryTexture(staticSprite, NULL, NULL, &staticSpriteRect.w, &staticSpriteRect.h);
   
 }
 
@@ -387,7 +435,9 @@ void quit()
 {
   free(tileArray);
   tileArray = NULL;
-  
+
+  SDL_DestroyTexture(editorSprite);
+  editorSprite = NULL;
   SDL_DestroyTexture(staticSprite);
   staticSprite = NULL;
   SDL_DestroyRenderer(gRender);
