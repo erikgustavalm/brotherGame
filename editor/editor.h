@@ -8,7 +8,7 @@
 #include <string.h>
 
 #define TILE_SIZE 32
-#define TILE_CROP_SIZE 16
+#define TILE_CROP_SIZE 64
 
 struct Tile
 {

@@ -88,15 +88,15 @@ void event()
     
     case SDL_MOUSEBUTTONDOWN:
       if (showStatic) {
-	int diffx = mouse_x % 16;
-	int diffy = mouse_y % 16;
+	int diffx = mouse_x % TILE_CROP_SIZE;
+	int diffy = mouse_y % TILE_CROP_SIZE;
 	int newx = mouse_x - diffx;
 	int newy = mouse_y - diffy;
 	setActiveRect(newx, newy);
 	showStatic = 0;
       } else {
-	int diffx = mouse_x % 32;
-	int diffy = mouse_y % 32;
+	int diffx = mouse_x % TILE_SIZE;
+	int diffy = mouse_y % TILE_SIZE;
 	int newx = mouse_x - diffx;
 	int newy = mouse_y - diffy;
 	if (checkIfTaken(newx, newy)) {
@@ -252,8 +252,8 @@ void setActiveRect(int x, int y)
 
   activeCropRect.x = x;
   activeCropRect.y = y;
-  activeCropRect.w = 16;
-  activeCropRect.h = 16;
+  activeCropRect.w = TILE_CROP_SIZE;
+  activeCropRect.h = TILE_CROP_SIZE;
 }
 
 void initEditor()
