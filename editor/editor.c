@@ -161,6 +161,7 @@ void render()
 {
   SDL_RenderClear(gRender);
 
+  SDL_RenderCopy(gRender, backgroundSprite, NULL, NULL);
 
   for (int i = 0; i < tileArraySize; i++) {
     SDL_RenderCopy(gRender, staticSprite, &tileArray[i].crop, &tileArray[i].src);
@@ -261,7 +262,7 @@ void initEditor()
   gWindow = SDL_CreateWindow("EDITOR",
 			     SDL_WINDOWPOS_CENTERED,
 			     SDL_WINDOWPOS_CENTERED,
-			     420,420,SDL_WINDOW_FULLSCREEN | SDL_WINDOW_SHOWN);
+			     640,420, SDL_WINDOW_SHOWN);
   if (gWindow == NULL) {
     printf("gWindow not created %s\n", SDL_GetError());
   } else {
@@ -368,6 +369,7 @@ void saveToFile()
   fclose(fp);
   printf("saved to file\n");
 }
+
 void loadLevelType(char* levelType)
 {
   char ssFilepath[40];
@@ -390,6 +392,30 @@ void loadLevelType(char* levelType)
   if (staticSprite == NULL) {
     printf("%s\n", SDL_GetError());
   }
+  
+//------------------------------------------------------------
+
+  char bgFP[40];
+  strcpy(bgFP, "levels/");
+  strcat(bgFP, levelType);
+  strcat(bgFP, "_bg.png");
+
+  printf("Background sprite is loaded from: %s\n", bgFP );
+
+  SDL_Surface* loadSurf3 = IMG_Load(bgFP);
+
+  if (loadSurf3 == NULL) {
+    printf("%s\n", SDL_GetError() );
+  }
+  backgroundSprite = SDL_CreateTextureFromSurface(gRender, loadSurf3);
+
+  SDL_FreeSurface(loadSurf3);
+
+  if (backgroundSprite == NULL) {
+    printf("%s\n", SDL_GetError() );
+  }
+
+//------------------------------------------------------------
 
   SDL_Surface* loadSurf2 = IMG_Load("always.png");
 
@@ -404,6 +430,8 @@ void loadLevelType(char* levelType)
     printf("%s\n", SDL_GetError());
   }
 
+//------------------------------------------------------------
+
   solidEditorRect.x = 0;
   solidEditorRect.y = 0;
   solidEditorRect.w = 16;
@@ -411,6 +439,7 @@ void loadLevelType(char* levelType)
   
   staticSpriteRect.x = 0;
   staticSpriteRect.y = 0;
+
   SDL_QueryTexture(staticSprite, NULL, NULL, &staticSpriteRect.w, &staticSpriteRect.h);
   
 }
@@ -435,6 +464,8 @@ void quit()
   free(tileArray);
   tileArray = NULL;
 
+  SDL_DestroyTexture(backgroundSprite);
+  backgroundSprite = NULL;
   SDL_DestroyTexture(editorSprite);
   editorSprite = NULL;
   SDL_DestroyTexture(staticSprite);
