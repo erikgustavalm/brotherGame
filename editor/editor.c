@@ -6,112 +6,114 @@ void event()
   while (SDL_PollEvent(&e)) {
     switch (e.type) {
       case SDL_QUIT: 
-        running = 0;
+		  running = 0;
       break;
 	
       case SDL_KEYDOWN:
-        switch(e.key.keysym.sym){
+		  switch(e.key.keysym.sym){
 
-	  case SDLK_ESCAPE:
-	    running = 0;
-	  break;
+		    case SDLK_ESCAPE:
+				running = 0;
+			break;
 
-	  case SDLK_SPACE:
-	    if (showStatic == 1) {
-	      showStatic = 0;
-	    }else {
-	      showStatic = 1;
-	    }
-	  break;
+		    case SDLK_SPACE:
+				if (showStatic == 1) {
+					showStatic = 0;
+				}else {
+					showStatic = 1;
+				}
+	        break;
 
-	  case SDLK_b:
-	    if (makeSolid) {
-	      makeSolid = 0;
-	    } else {
-	      makeSolid = 1;
-	    }
-	  break;
+		    case SDLK_b:
+				if (makeSolid) {
+					makeSolid = 0;
+				} else {
+					makeSolid = 1;
+				}
+			break;
 	  
-	  case SDLK_RETURN:
-	    saveToFile();
-	    running = 0;
-	  break;
+		    case SDLK_RETURN:
+				saveToFile();
+				running = 0;
+	        break;
 
- 	  case SDLK_w:
-	    camUp = 1;
-	  break;
+		    case SDLK_w:
+				camUp = 1;
+			break;
 
-	  case SDLK_s:
-	    camDown = 1;
-	  break;
+		    case SDLK_s:
+				camDown = 1;
+			break;
 
-	  case SDLK_a:
-	    camLeft = 1;
-	  break;
+		    case SDLK_a:
+				camLeft = 1;
+			break;
 
-	  case SDLK_d:
-	    camRight = 1;
-	  break;
+		    case SDLK_d:
+				camRight = 1;
+			break;
 
-	  case SDLK_e:
-            printf("x on first: %d\n", tileArray[0].src.x);
-	  break;
+		    case SDLK_e:
+				printf("x on first: %d\n", tileArray[0].src.x);
+			break;
 	    
-	  default:
-	  break;
-	}
+		    default:
+			break;
+		  }
     break;
 
     case SDL_KEYUP:
       switch (e.key.keysym.sym) {
 
-	case SDLK_w:
-	  camUp = 0;
-	break;
+	    case SDLK_w:
+		    camUp = 0;
+		break;
 
-        case SDLK_s:
-          camDown = 0;
-	break;
+	    case SDLK_s:
+            camDown = 0;
+		break;
 
-	case SDLK_a:
-	  camLeft = 0;
-	break;
+	    case SDLK_a:
+		    camLeft = 0;
+		break;
 
-	case SDLK_d:
-	  camRight = 0;
-        break;
+	    case SDLK_d:
+		    camRight = 0;
+		break;
 
-	default:
-	break;
+	    default:
+ 		break;
+		
       }
     break;
     
     case SDL_MOUSEBUTTONDOWN:
       if (showStatic) {
-	int diffx = mouse_x % TILE_CROP_SIZE;
-	int diffy = mouse_y % TILE_CROP_SIZE;
-	int newx = mouse_x - diffx;
-	int newy = mouse_y - diffy;
-	setActiveRect(newx, newy);
-	showStatic = 0;
+		  
+		  int diffx = mouse_x % TILE_CROP_SIZE;
+		  int diffy = mouse_y % TILE_CROP_SIZE;
+		  showStatic = 0;
+		  
       } else {
-	int diffx = mouse_x % TILE_SIZE;
-	int diffy = mouse_y % TILE_SIZE;
-	int newx = mouse_x - diffx;
-	int newy = mouse_y - diffy;
-	if (checkIfTaken(newx, newy)) {
+		  
+		  int diffx = mouse_x % TILE_SIZE;
+		  int diffy = mouse_y % TILE_SIZE;
+		  int newx = mouse_x - diffx;
+		  int newy = mouse_y - diffy;
+		  
+		  if (checkIfTaken(newx, newy)) {
 	  
-	} else {
-	  struct Tile new;
+		  } else {
+			  struct Tile new;
 
-	  if (makeSolid) {
-	    createTile(&new, newx, newy, activeCropRect.x, activeCropRect.y, 1);  
-	  }else {
-	    createTile(&new, newx, newy, activeCropRect.x, activeCropRect.y, 0);
-	  }
+			  if (makeSolid) {
+				  createTile(&new, newx, newy, activeCropRect.x, activeCropRect.y, 1);  
+			  }else {
+				  createTile(&new, newx, newy, activeCropRect.x, activeCropRect.y, 0);
+			  }
 	  
-	  addTile(new);
-	}
+			  addTile(new);
+		  }
       }
     break;
     
@@ -155,6 +157,8 @@ void update()
     movement(0,-TILE_SIZE);
     corr_y -= TILE_SIZE;
   }
+
+  animateEnemy();
 }
 
 void render()
@@ -178,6 +182,8 @@ void render()
       SDL_RenderCopy(gRender, editorSprite, &solidEditorRect, &activeDestRect);
     }
   }
+
+  SDL_RenderCopy(gRender, enemySprite, &enemyCrop, &enemySource);
   
   SDL_RenderPresent(gRender);
 }
@@ -208,6 +214,18 @@ void mainloop()
       FPS = SDL_GetTicks();
     }
   }
+}
+
+void animateEnemy()
+{
+	if (enemyAnimationClock == 3) {
+		enemyCrop.y += TILE_CROP_SIZE;
+		if (enemyCrop.y == (TILE_CROP_SIZE*4)) {
+			enemyCrop.y = 0;
+		}
+		enemyAnimationClock = 0;
+	}
+	enemyAnimationClock++;
 }
 
 int checkIfTaken(int x, int y)
@@ -332,18 +350,18 @@ void loadLevelFile(char* levelFile)
     
     while (!feof(f) && linesInFile > 1) {
       
-      int srcx;
-      int srcy;
-      int crox;
-      int croy;
-      int solid;
+      int srcx = 0;
+      int srcy = 0;
+      int crox = 0;
+      int croy = 0;
+      int solid = 0;
       
       if (fscanf(f, "%d %d %d %d %d\n", &srcx, &srcy, &crox, &croy, &solid)) {
-	struct Tile new;
-	createTile(&new, srcx, srcy, crox, croy, solid);
-        addTile(new);
+		  struct Tile new;
+		  createTile(&new, srcx, srcy, crox, croy, solid);
+		  addTile(new);
       }else {
-	printf("not working\n");
+		  printf("not working\n");
       }
     }
   }
@@ -385,6 +403,7 @@ void loadLevelType(char* levelType)
   if (loadSurf == NULL) {
     printf("%s\n", SDL_GetError());
   }
+  
   staticSprite = SDL_CreateTextureFromSurface(gRender, loadSurf);
 
   SDL_FreeSurface(loadSurf);
@@ -407,6 +426,7 @@ void loadLevelType(char* levelType)
   if (loadSurf3 == NULL) {
     printf("%s\n", SDL_GetError() );
   }
+  
   backgroundSprite = SDL_CreateTextureFromSurface(gRender, loadSurf3);
 
   SDL_FreeSurface(loadSurf3);
@@ -422,6 +442,7 @@ void loadLevelType(char* levelType)
   if (loadSurf2 == NULL) {
     printf("%s\n", SDL_GetError());
   }
+  
   editorSprite = SDL_CreateTextureFromSurface(gRender, loadSurf2);
 
   SDL_FreeSurface(loadSurf2);
@@ -430,6 +451,34 @@ void loadLevelType(char* levelType)
     printf("%s\n", SDL_GetError());
   }
 
+//------------------------------------------------------------
+
+  SDL_Surface* loadSurf4 = IMG_Load("enemy.png");
+
+  if (loadSurf4 == NULL) {
+	  printf("%s\n", SDL_GetError() );
+  }
+  
+  enemySprite = SDL_CreateTextureFromSurface(gRender, loadSurf4);
+
+  SDL_FreeSurface(loadSurf4);
+
+  if (enemySprite == NULL) {
+	  printf("%s\n", SDL_GetError() );
+  }
+
+  enemySource.x = 64;
+  enemySource.y = 64;
+  enemySource.w = TILE_SIZE;
+  enemySource.h = TILE_SIZE;
+
+  enemyCrop.x = 0;
+  enemyCrop.y = 0;
+  enemyCrop.w = TILE_CROP_SIZE;
+  enemyCrop.h = TILE_CROP_SIZE;
+
+  enemyAnimationClock = 0;
+  
 //------------------------------------------------------------
 
   solidEditorRect.x = 0;

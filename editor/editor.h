@@ -35,6 +35,12 @@ SDL_Rect solidEditorRect;
 
 SDL_Texture* backgroundSprite;
 
+SDL_Texture* enemySprite;
+SDL_Rect enemyCrop;
+SDL_Rect enemySource;
+int enemyAnimationClock;
+
+extern void animateEnemy();
 extern int checkIfTaken(int x, int y);
 extern void createTile(struct Tile* new, int x, int y, int cx, int cy, int solid);
 extern void addTile(struct Tile new);
