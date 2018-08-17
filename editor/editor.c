@@ -92,6 +92,9 @@ void event()
 		  
 		  int diffx = mouse_x % TILE_CROP_SIZE;
 		  int diffy = mouse_y % TILE_CROP_SIZE;
+		  int newx = mouse_x - diffx;
+		  int newy = mouse_y - diffy;
+		  setActiveRect(newx, newy);
 		  showStatic = 0;
 		  
       } else {
@@ -158,7 +161,7 @@ void update()
     corr_y -= TILE_SIZE;
   }
 
-  animateEnemy();
+  //animateEnemy();
 }
 
 void render()
@@ -332,7 +335,7 @@ void loadLevelFile(char* levelFile)
       linesInFile++;
     }
     
-    printf("lines in empty file : %d\n", linesInFile);
+    printf("lines in level file : %d\n", linesInFile);
     
     rewind(f);
 
